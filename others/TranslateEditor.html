@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>双栏编辑器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <style>
+        :root[data-theme="dark"] {
+            --bg-color: #1e1e1e;
+            --editor-bg: #2d2d2d;
+            --text-color: #d4d4d4;
+            --gutter-bg: #252525;
+            --gutter-text: #858585;
+            --highlight-bg: #404040;
+            --button-bg: #333333;
+            --button-text: #d4d4d4;
+            --button-hover: #444444;
+            --border-color: #404040;
+            --selection-bg: #264f78;
+            --selection-text: #ffffff;
+            --toolbar-bg: #2d2d2d;
+        }
+
+        :root[data-theme="light"] {
+            --bg-color: #ffffff;
+            --editor-bg: #f5f5f5;
+            --text-color: #333333;
+            --gutter-bg: #eeeeee;
+            --gutter-text: #999999;
+            --highlight-bg: #ffffd0;
+            --button-bg: #e0e0e0;
+            --button-text: #333333;
+            --button-hover: #d0d0d0;
+            --border-color: #cccccc;
+            --selection-bg: #add6ff;
+            --selection-text: #000000;
+            --toolbar-bg: #f5f5f5;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            gap: 10px;
+        }
+
+        .main-toolbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+            background-color: var(--toolbar-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            gap: 20px;
+        }
+
+        .editors-container {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            transition: flex 0.3s ease;
+        }
+
+        .button {
+            padding: 4px 8px;
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--button-text);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .button:hover {
+            background-color: var(--button-hover);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .label {
+            color: var(--text-color);
+            font-size: 12px;
+        }
+
+        .CodeMirror {
+            height: 100%;
+            background-color: var(--editor-bg) !important;
+            color: var(--text-color) !important;
+            transition: all 0.3s ease;
+            font-size: 18px !important;
+            font-family: "Noto Serif CJK SC", "思源宋体 CN", serif !important;
+        }
+
+        .highlighted-line {
+            background-color: var(--highlight-bg) !important;
+        }
+
+        .CodeMirror-line {
+            white-space: pre-wrap !important;
+            word-break: break-all !important;
+        }
+
+        .CodeMirror-linenumbers {
+            background-color: var(--gutter-bg) !important;
+        }
+
+        .CodeMirror-linenumber {
+            color: var(--gutter-text) !important;
+        }
+
+        .CodeMirror-cursor {
+            border-left: 2px solid var(--text-color) !important;
+        }
+
+        .CodeMirror-gutters {
+            border-right: 1px solid var(--border-color) !important;
+            background-color: var(--gutter-bg) !important;
+        }
+
+        .CodeMirror-selected {
+            background-color: var(--selection-bg) !important;
+        }
+
+        .CodeMirror-selectedtext {
+            color: var(--selection-text) !important;
+        }
+
+        .CodeMirror-focused .CodeMirror-selected {
+            background-color: var(--selection-bg) !important;
+        }
+
+        .CodeMirror-line::selection, 
+        .CodeMirror-line > span::selection,
+        .CodeMirror-line > span > span::selection {
+            background-color: var(--selection-bg) !important;
+            color: var(--selection-text) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-toolbar">
+            <div class="control-group">
+                <button class="button" onclick="toggleTheme()">切换主题</button>
+            </div>
+            <div class="control-group">
+                <span class="label">字号:</span>
+                <button class="button" onclick="changeFontSize('decrease')">A-</button>
+                <button class="button" onclick="changeFontSize('increase')">A+</button>
+            </div>
+            <div class="control-group">
+                <span class="label">宽度比例:</span>
+                <button class="button" onclick="adjustWidth('left')">←</button>
+                <button class="button" onclick="resetWidth()">1:1</button>
+                <button class="button" onclick="adjustWidth('right')">→</button>
+            </div>
+            <div class="control-group">
+                <button class="button" onclick="splitText()">按句拆分</button>
+                <button class="button" onclick="copyRightContent()">复制译文</button>
+            </div>
+        </div>
+        <div class="editors-container">
+            <div class="editor-container" id="leftContainer">
+                <textarea id="sourceEditor"></textarea>
+            </div>
+            <div class="editor-container" id="rightContainer">
+                <textarea id="targetEditor"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const editorConfig = {
+            lineNumbers: true,
+            lineWrapping: true,
+            theme: 'default',
+            mode: 'text/plain',
+            autofocus: true,
+            scrollbarStyle: 'native'
+        };
+
+        const sourceEditor = CodeMirror.fromTextArea(document.getElementById('sourceEditor'), editorConfig);
+        const targetEditor = CodeMirror.fromTextArea(document.getElementById('targetEditor'), editorConfig);
+
+        let currentFontSize = 18; // 默认字号改为18
+        let currentWidthRatio = 50;
+
+        function splitText() {
+            let sourceContent = sourceEditor.getValue();
+            let targetContent = targetEditor.getValue();
+            
+            let splitSourceContent = sourceContent.replace(/([。？！])\x20?(?![\r\n])/g, "$1\r\n\r\n")
+                .replace(/([.?!])\x20(?![\r\n])/g, "$1\r\n\r\n")
+            let splitTargetContent = targetContent.replace(/([。？！.?!])\x20?(?![\r\n])/g, "$1\r\n\r\n")
+                .replace(/([.?!])\x20(?![\r\n])/g, "$1\r\n\r\n")
+            
+            sourceEditor.setValue(splitSourceContent);
+            targetEditor.setValue(splitTargetContent);
+            
+            sourceEditor.refresh();
+            targetEditor.refresh();
+        }
+
+        async function copyRightContent() {
+            try {
+                // 获取右侧编辑器内容并去除换行符
+                const content = targetEditor.getValue().replace(/[\r\n]+/g, '');
+                
+                // 写入剪贴板
+                await navigator.clipboard.writeText(content);
+                
+                // 可以添加一个临时提示效果
+                const copyButton = document.querySelector('.button:last-child');
+                const originalText = copyButton.textContent;
+                copyButton.textContent = '已复制';
+                setTimeout(() => {
+                    copyButton.textContent = originalText;
+                }, 1000);
+            } catch (err) {
+                console.error('复制失败:', err);
+            }
+        }
+
+        function changeFontSize(action) {
+            if (action === 'increase' && currentFontSize < 24) {
+                currentFontSize += 2;
+            } else if (action === 'decrease' && currentFontSize > 12) {
+                currentFontSize -= 2;
+            }
+            
+            document.querySelectorAll('.CodeMirror').forEach(editor => {
+                editor.style.fontSize = `${currentFontSize}px`;
+            });
+        }
+
+        function adjustWidth(direction) {
+            if (direction === 'left' && currentWidthRatio > 30) {
+                currentWidthRatio -= 5;
+            } else if (direction === 'right' && currentWidthRatio < 70) {
+                currentWidthRatio += 5;
+            }
+            updateWidth();
+        }
+
+        function resetWidth() {
+            currentWidthRatio = 50;
+            updateWidth();
+        }
+
+        function updateWidth() {
+            const leftContainer = document.getElementById('leftContainer');
+            const rightContainer = document.getElementById('rightContainer');
+            leftContainer.style.flex = `${currentWidthRatio}`;
+            rightContainer.style.flex = `${100 - currentWidthRatio}`;
+            sourceEditor.refresh();
+            targetEditor.refresh();
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+        }
+
+        let currentHighlightedLine = null;
+
+        function clearAllHighlights() {
+            if (currentHighlightedLine !== null) {
+                sourceEditor.removeLineClass(currentHighlightedLine, 'background', 'highlighted-line');
+                targetEditor.removeLineClass(currentHighlightedLine, 'background', 'highlighted-line');
+            }
+        }
+
+        function highlightLine(lineNumber) {
+            clearAllHighlights();
+            sourceEditor.addLineClass(lineNumber, 'background', 'highlighted-line');
+            targetEditor.addLineClass(lineNumber, 'background', 'highlighted-line');
+            currentHighlightedLine = lineNumber;
+        }
+
+        function onCursorActivity(editor) {
+            const pos = editor.getCursor();
+            highlightLine(pos.line);
+        }
+
+        sourceEditor.on('cursorActivity', () => onCursorActivity(sourceEditor));
+        targetEditor.on('cursorActivity', () => onCursorActivity(targetEditor));
+
+        function updateEditorsSize() {
+            sourceEditor.refresh();
+            targetEditor.refresh();
+        }
+
+        window.addEventListener('resize', updateEditorsSize);
+        updateEditorsSize();
+    </script>
+</body>
+</html>
