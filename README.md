@@ -1,2 +1,2 @@
-“# Austrian Paper”
+# Austrian Paper
 Git is Awesome!
