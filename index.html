@@ -1,158 +1,632 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <link rel="shortcut icon" href="logo.png">
-    <title>Austrian Pages</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>藏奥阁 - 收集智慧书籍和文献</title>
+    <link rel="icon" href="./static/img/favicon.ico">
     <style>
-        body {
+        /* 基础样式 */
+        * {
             margin: 0;
             padding: 0;
-            min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            /* background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); */
-            background-color: #E9E4D8;
-            /* color: #fff; */
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "SimSun", sans-serif;
         }
-
-        p {
-            line-height: 2em;
-            text-indent: 2em;
-            font-size: 18px;
-            color: #181717;
+        
+        body {
+            background-color: #f8f5f0;
+            color: #333;
+            line-height: 1.6;
         }
-
+        
+        /* 顶部导航栏 */
         .navbar {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            align-items: center;
+            padding: 15px 5%;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-
-
-
+        
         .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
         }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            /* background: #fff; */
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #1e3a8a;
+        
+        .logo img {
+            height: 40px;
         }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
+        
+        .logo h1 {
+            font-family: "SimSun", serif;
+            font-size: 24px;
+            margin-left: 10px;
+            color: #3a5740;
         }
-
+        
+        .search-bar {
+            flex-grow: 1;
+            margin: 0 40px;
+            position: relative;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+            transition: all 0.3s;
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: #3a5740;
+            box-shadow: 0 0 5px rgba(58, 87, 64, 0.3);
+        }
+        
+        .search-bar button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+        }
+        
         .nav-links a {
-            color: #212121;
+            margin-left: 20px;
             text-decoration: none;
-            font-size: 1rem;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #3a5740;
+        }
+        
+        /* Banner区域 */
+        .banner {
+            height: 400px;
+            background-image: url('https://cdn2.zzzmh.cn/wallpaper/origin/47482bcb3a294e868546d6c73f1e7ca8.jpg?response-content-disposition=attachment&auth_key=1743782400-b69a395fe824f1c71fa7cac279c7e8c964f1aeb8-0-bf0ce2bc4dc2d4df124dac43327dfe09');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        
+        .banner::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .banner-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        
+        .banner h2 {
+            font-family: "SimSun", serif;
+            font-size: 36px;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+        
+        .banner p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        
+        .banner .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #3a5740;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
             font-weight: bold;
+            transition: background-color 0.3s;
         }
-
-        .content {
-            max-width: 670px;
-            margin: 2rem auto;
-            padding: 4rem;
-            background: rgba(255, 255, 255, .3);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        
+        .banner .btn:hover {
+            background-color: #2a3f2e;
         }
-
-        .content h1 {
-            margin-top: 0;
+        
+        /* 内容区域通用样式 */
+        .section {
+            padding: 60px 5%;
         }
-
-        .quote {
-            border-left: 4px solid rgba(255, 255, 255, 0.3);
-            padding-left: 1rem;
-            margin: 1rem 0;
-            font-style: italic;
+        
+        .section-title {
+            font-family: "SimSun", serif;
+            font-size: 28px;
+            color: #3a5740;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
         }
-
-        .sidebar {
-            position: fixed;
-            right: 1rem;
-            top: 6rem;
-            width: 200px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar a {
+        
+        .section-title::after {
+            content: "";
             display: block;
-            color: #fff;
+            width: 60px;
+            height: 3px;
+            background-color: #3a5740;
+            margin: 15px auto;
+        }
+        
+        /* 推荐书籍区域 */
+        .book-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 30px;
+        }
+        
+        .book-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .book-cover {
+            height: 240px;
+            background-color: #eee;
+            overflow: hidden;
+        }
+        
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .book-card:hover .book-cover img {
+            transform: scale(1.05);
+        }
+        
+        .book-info {
+            padding: 20px;
+        }
+        
+        .book-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .book-author {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .book-desc {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .book-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #888;
+        }
+        
+        /* 分类导航区域 */
+        .category-section {
+            background-color: #f0f5f1;
+        }
+        
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .category-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .category-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .category-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #f0f5f1;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 24px;
+            color: #3a5740;
+        }
+        
+        .category-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* 特色功能区域 */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+        
+        .feature-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-title {
+            font-size: 20px;
+            color: #3a5740;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-title i {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        
+        .daily-quote {
+            font-style: italic;
+            color: #555;
+            margin: 15px 0;
+            padding-left: 10px;
+            border-left: 3px solid #3a5740;
+        }
+        
+        .quote-author {
+            text-align: right;
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .feature-btn {
+            display: inline-block;
+            padding: 8px 20px;
+            background-color: #f0f5f1;
+            color: #3a5740;
             text-decoration: none;
-            padding: 0.5rem 0;
+            border-radius: 4px;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        
+        .feature-btn:hover {
+            background-color: #e0ebe2;
+        }
+        
+        /* 底部区域 */
+        footer {
+            background-color: #333;
+            color: #ddd;
+            padding: 40px 5%;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .footer-links a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-links a {
+            color: #ddd;
+            font-size: 20px;
+            transition: color 0.3s;
+        }
+        
+        .social-links a:hover {
+            color: white;
+        }
+        
+        .copyright {
+            margin-top: 30px;
+            font-size: 14px;
+            text-align: center;
+            color: #888;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .logo {
+                margin-bottom: 10px;
+            }
+            
+            .search-bar {
+                margin: 10px 0;
+                width: 100%;
+            }
+            
+            .nav-links {
+                margin-top: 10px;
+                text-align: center;
+            }
+            
+            .banner {
+                height: 300px;
+            }
+            
+            .banner h2 {
+                font-size: 28px;
+            }
+            
+            .section {
+                padding: 40px 5%;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 顶部导航栏 -->
     <nav class="navbar">
         <div class="logo">
-            <img src="avatar.png" class="logo-icon" alt="Logo">
-            <span>山林朝市</span>
+            <img src="https://cdn-icons-png.flaticon.com/128/628/628842.png" alt="藏奥阁Logo">
+            <h1>藏奥阁</h1>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="搜索书籍、作者或关键词...">
+            <button>🔍</button>
         </div>
         <div class="nav-links">
-            <a href="#">Home</a>
-            <a href="#">Posts</a>
-            <a href="#">Tags</a>
-            <a href="#">About</a>
-            <a href="#">Other</a>
+            <a href="#">登录/注册</a>
+            <a href="#">帮助中心</a>
+            <a href="#">关于我们</a>
         </div>
     </nav>
-    <div class="content">
-        <h1>第一章 人的行动的基本原理</h1>
-        <h2>1. 行动的概念</h2>
-        <p>对人的研究中最为独特且至关重要的特征，乃是行动（action）这一概念。 ([1])人的行动（human action）可以简洁地定义为有意图的行为。因此，人的行动鲜明地区别于那些从人的视角看来并非出于意图的观察到的运动。后者包括所有观察到的无机物质运动，以及那些纯粹是反射性的人类行为——也就是对特定刺激的无意识反应。与之不同，人的行动能够被他人有意义地解读，因为它受行动者内心往向的某种意图所支配。 ([2])一个人的行动的意图即为他的目的（end）。为达成此目的的欲求，则是其发起行动的动机（motive）。</p>
-        <p>基于人之存在及其本性，所有人都会行动。 ([1])我们无法想象这样的人类，他们不会有意图地行动，他们没有任何渴望并力图实现的目的。那些不会行动、不会有意图地行为的事物，将不再被归类为人类。</p>
-        <p>对人的研究中最为独特且至关重要的特征，乃是行动（action）这一概念。 ([1])人的行动（human action）可以简洁地定义为有意图的行为。因此，人的行动鲜明地区别于那些从人的视角看来并非出于意图的观察到的运动。后者包括所有观察到的无机物质运动，以及那些纯粹是反射性的人类行为——也就是对特定刺激的无意识反应。与之不同，人的行动能够被他人有意义地解读，因为它受行动者内心往向的某种意图所支配。 ([2])一个人的行动的意图即为他的目的（end）。为达成此目的的欲求，则是其发起行动的动机（motive）。</p>
-        <p>基于人之存在及其本性，所有人都会行动。 ([1])我们无法想象这样的人类，他们不会有意图地行动，他们没有任何渴望并力图实现的目的。那些不会行动、不会有意图地行为的事物，将不再被归类为人类。</p>
-        <p>对人的研究中最为独特且至关重要的特征，乃是行动（action）这一概念。 ([1])人的行动（human action）可以简洁地定义为有意图的行为。因此，人的行动鲜明地区别于那些从人的视角看来并非出于意图的观察到的运动。后者包括所有观察到的无机物质运动，以及那些纯粹是反射性的人类行为——也就是对特定刺激的无意识反应。与之不同，人的行动能够被他人有意义地解读，因为它受行动者内心往向的某种意图所支配。 ([2])一个人的行动的意图即为他的目的（end）。为达成此目的的欲求，则是其发起行动的动机（motive）。</p>
-        <p>基于人之存在及其本性，所有人都会行动。 ([1])我们无法想象这样的人类，他们不会有意图地行动，他们没有任何渴望并力图实现的目的。那些不会行动、不会有意图地行为的事物，将不再被归类为人类。</p>
-        <p>对人的研究中最为独特且至关重要的特征，乃是行动（action）这一概念。 ([1])人的行动（human action）可以简洁地定义为有意图的行为。因此，人的行动鲜明地区别于那些从人的视角看来并非出于意图的观察到的运动。后者包括所有观察到的无机物质运动，以及那些纯粹是反射性的人类行为——也就是对特定刺激的无意识反应。与之不同，人的行动能够被他人有意义地解读，因为它受行动者内心往向的某种意图所支配。 ([2])一个人的行动的意图即为他的目的（end）。为达成此目的的欲求，则是其发起行动的动机（motive）。</p>
-        <p>基于人之存在及其本性，所有人都会行动。 ([1])我们无法想象这样的人类，他们不会有意图地行动，他们没有任何渴望并力图实现的目的。那些不会行动、不会有意图地行为的事物，将不再被归类为人类。</p>
-        <p>对人的研究中最为独特且至关重要的特征，乃是行动（action）这一概念。 ([1])人的行动（human action）可以简洁地定义为有意图的行为。因此，人的行动鲜明地区别于那些从人的视角看来并非出于意图的观察到的运动。后者包括所有观察到的无机物质运动，以及那些纯粹是反射性的人类行为——也就是对特定刺激的无意识反应。与之不同，人的行动能够被他人有意义地解读，因为它受行动者内心往向的某种意图所支配。 ([2])一个人的行动的意图即为他的目的（end）。为达成此目的的欲求，则是其发起行动的动机（motive）。</p>
-        <p>基于人之存在及其本性，所有人都会行动。 ([1])我们无法想象这样的人类，他们不会有意图地行动，他们没有任何渴望并力图实现的目的。那些不会行动、不会有意图地行为的事物，将不再被归类为人类。</p>
-        <p>对人的研究中最为独特且至关重要的特征，乃是行动（action）这一概念。 ([1])人的行动（human action）可以简洁地定义为有意图的行为。因此，人的行动鲜明地区别于那些从人的视角看来并非出于意图的观察到的运动。后者包括所有观察到的无机物质运动，以及那些纯粹是反射性的人类行为——也就是对特定刺激的无意识反应。与之不同，人的行动能够被他人有意义地解读，因为它受行动者内心往向的某种意图所支配。 ([2])一个人的行动的意图即为他的目的（end）。为达成此目的的欲求，则是其发起行动的动机（motive）。</p>
-        <p>基于人之存在及其本性，所有人都会行动。 ([1])我们无法想象这样的人类，他们不会有意图地行动，他们没有任何渴望并力图实现的目的。那些不会行动、不会有意图地行为的事物，将不再被归类为人类。</p>
-        <p>对人的研究中最为独特且至关重要的特征，乃是行动（action）这一概念。 ([1])人的行动（human action）可以简洁地定义为有意图的行为。因此，人的行动鲜明地区别于那些从人的视角看来并非出于意图的观察到的运动。后者包括所有观察到的无机物质运动，以及那些纯粹是反射性的人类行为——也就是对特定刺激的无意识反应。与之不同，人的行动能够被他人有意义地解读，因为它受行动者内心往向的某种意图所支配。 ([2])一个人的行动的意图即为他的目的（end）。为达成此目的的欲求，则是其发起行动的动机（motive）。</p>
-        <p>基于人之存在及其本性，所有人都会行动。 ([1])我们无法想象这样的人类，他们不会有意图地行动，他们没有任何渴望并力图实现的目的。那些不会行动、不会有意图地行为的事物，将不再被归类为人类。</p>
-        <p>对人的研究中最为独特且至关重要的特征，乃是行动（action）这一概念。 ([1])人的行动（human action）可以简洁地定义为有意图的行为。因此，人的行动鲜明地区别于那些从人的视角看来并非出于意图的观察到的运动。后者包括所有观察到的无机物质运动，以及那些纯粹是反射性的人类行为——也就是对特定刺激的无意识反应。与之不同，人的行动能够被他人有意义地解读，因为它受行动者内心往向的某种意图所支配。 ([2])一个人的行动的意图即为他的目的（end）。为达成此目的的欲求，则是其发起行动的动机（motive）。</p>
-        <p>基于人之存在及其本性，所有人都会行动。 ([1])我们无法想象这样的人类，他们不会有意图地行动，他们没有任何渴望并力图实现的目的。那些不会行动、不会有意图地行为的事物，将不再被归类为人类。</p>
+
+    <!-- Banner区域 -->
+    <div class="banner">
+        <div class="banner-content">
+            <h2>藏古今智慧，启未来之门</h2>
+            <p>在这里，您可以探索珍贵的智慧书籍和文献，汲取先贤智慧，开启知识之旅</p>
+            <a href="./mes/index.html" class="btn">探索书籍</a>
+        </div>
     </div>
 
-    <!-- <div class="sidebar">
-        <a href="#">前言</a>
-        <a href="#">准备工作</a>
-        <a href="#">步骤</a>
-        <a href="#">创建文章</a>
-        <a href="#">部署到Github Pages</a>
-        <a href="#">一些小技巧和提示</a>
-        <a href="#">参考</a>
-    </div> -->
+    <!-- 推荐书籍区域 -->
+    <section class="section">
+        <h2 class="section-title">经典推荐</h2>
+        <div class="book-cards">
+            <!-- 书籍卡片1 -->
+            <div class="book-card">
+                <div class="book-cover">
+                    <img src="/api/placeholder/240/240" alt="论语">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">论语</div>
+                    <div class="book-author">孔子及弟子</div>
+                    <div class="book-desc">《论语》是儒家学派的经典著作之一，由孔子的弟子及其再传弟子编撰而成，集中记录了孔子及其弟子的言行，是儒家思想的重要来源。</div>
+                    <div class="book-stats">
+                        <span>阅读: 12.5万</span>
+                        <span>评分: 9.8</span>
+                    </div>
+                </div>
+            </div>
 
+            <!-- 书籍卡片2 -->
+            <div class="book-card">
+                <div class="book-cover">
+                    <img src="/api/placeholder/240/240" alt="道德经">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">道德经</div>
+                    <div class="book-author">老子</div>
+                    <div class="book-desc">《道德经》又称《老子》，是中国古代道家学派的经典著作，被誉为万经之王，是中国传统文化中最具影响力的作品之一。</div>
+                    <div class="book-stats">
+                        <span>阅读: 10.3万</span>
+                        <span>评分: 9.7</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 书籍卡片3 -->
+            <div class="book-card">
+                <div class="book-cover">
+                    <img src="/api/placeholder/240/240" alt="庄子">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">庄子</div>
+                    <div class="book-author">庄周</div>
+                    <div class="book-desc">《庄子》是道家的重要典籍，与《老子》并称为道家思想的两大经典，富有浪漫主义色彩的哲学著作，对中国文化产生了深远影响。</div>
+                    <div class="book-stats">
+                        <span>阅读: 8.7万</span>
+                        <span>评分: 9.6</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 书籍卡片4 -->
+            <div class="book-card">
+                <div class="book-cover">
+                    <img src="/api/placeholder/240/240" alt="孙子兵法">
+                </div>
+                <div class="book-info">
+                    <div class="book-title">孙子兵法</div>
+                    <div class="book-author">孙武</div>
+                    <div class="book-desc">《孙子兵法》是中国古代最著名的兵书，被誉为"兵学圣典"，对东西方军事理论和实践都产生了深远影响，是世界上最早的军事著作。</div>
+                    <div class="book-stats">
+                        <span>阅读: 9.5万</span>
+                        <span>评分: 9.5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 分类导航区域 -->
+    <section class="section category-section">
+        <h2 class="section-title">按分类探索</h2>
+        <div class="categories">
+            <div class="category-item">
+                <div class="category-icon">📚</div>
+                <div class="category-name">哲学</div>
+            </div>
+            <div class="category-item">
+                <div class="category-icon">📜</div>
+                <div class="category-name">文学</div>
+            </div>
+            <div class="category-item">
+                <div class="category-icon">🏛️</div>
+                <div class="category-name">历史</div>
+            </div>
+            <div class="category-item">
+                <div class="category-icon">🔬</div>
+                <div class="category-name">科技</div>
+            </div>
+            <div class="category-item">
+                <div class="category-icon">🧠</div>
+                <div class="category-name">心理学</div>
+            </div>
+            <div class="category-item">
+                <div class="category-icon">💼</div>
+                <div class="category-name">经济</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 特色功能区域 -->
+    <section class="section">
+        <h2 class="section-title">特色功能</h2>
+        <div class="features">
+            <!-- 每日一句 -->
+            <div class="feature-item">
+                <div class="feature-title">
+                    <i>💡</i> 每日一句
+                </div>
+                <p class="daily-quote">知之者不如好之者，好之者不如乐之者。</p>
+                <p class="quote-author">——孔子《论语》</p>
+                <a href="#" class="feature-btn">探索更多智慧</a>
+            </div>
+
+            <!-- 阅读计划 -->
+            <div class="feature-item">
+                <div class="feature-title">
+                    <i>📅</i> 阅读计划
+                </div>
+                <p>制定个性化阅读计划，培养阅读习惯，获取持续成长。根据您的兴趣和时间，为您推荐适合的书籍和阅读进度。</p>
+                <a href="#" class="feature-btn">开始我的计划</a>
+            </div>
+
+            <!-- 书评社区 -->
+            <div class="feature-item">
+                <div class="feature-title">
+                    <i>👥</i> 书评社区
+                </div>
+                <p>加入书友交流社区，分享阅读心得，参与热门话题讨论，结识志同道合的朋友，共同探讨人生智慧。</p>
+                <a href="#" class="feature-btn">进入社区</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 底部区域 -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#">联系我们</a>
+                <a href="#">隐私政策</a>
+                <a href="#">用户协议</a>
+                <a href="#">帮助中心</a>
+                <a href="#">加入我们</a>
+            </div>
+            <div class="social-links">
+                <a href="#">微博</a>
+                <a href="#">微信</a>
+                <a href="#">知乎</a>
+            </div>
+        </div>
+        <div class="copyright">
+            © 2023 藏奥阁 版权所有
+        </div>
+    </footer>
 </body>
 </html>

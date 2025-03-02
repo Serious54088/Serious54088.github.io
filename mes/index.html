@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>目录 - MES 章节导航</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --hover-color: #3498db;
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --toolbar-bg: #f5f5f5;
+            --content-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --toc-width: 300px;
+            --base-font-size: 16px;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #58a6ff;
+            --hover-color: #79b9ff;
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --toolbar-bg: #161b22;
+            --content-bg: #0d1117;
+            --border-color: #30363d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            overflow-x: hidden;
+            font-size: var(--base-font-size);
+        }
+
+        /* 工具栏样式 */
+        .toolbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: var(--toolbar-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 1000;
+        }
+
+        .toolbar-button {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .toolbar-button:hover {
+            background-color: var(--hover-color);
+            color: white;
+        }
+
+        .toolbar-button i {
+            font-size: 20px;
+        }
+
+        /* 字号调节面板 */
+        .font-size-panel {
+            position: fixed;
+            background: var(--content-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1001;
+        }
+
+        .font-size-panel.visible {
+            display: flex;
+            align-items: center;
+        }
+
+        .font-size-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .font-size-label {
+            color: var(--text-color);
+            font-family: serif;
+        }
+
+        .font-size-label.small {
+            font-size: 12px;
+        }
+
+        .font-size-label.large {
+            font-size: 18px;
+        }
+
+        .font-size-slider {
+            width: 100px;
+            position: relative;
+        }
+
+        /* 自定义滑块样式 */
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--hover-color);
+        }
+
+        /* 工具提示样式 */
+        .tooltip {
+            position: absolute;
+            background: var(--primary-color);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 4px 4px 0;
+            border-style: solid;
+            border-color: var(--primary-color) transparent transparent;
+        }
+
+        .tooltip.visible {
+            opacity: 1;
+        }
+
+        /* 内容区域样式 */
+        .container {
+            margin-top: 50px;
+            padding: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .container.toc-open {
+            transform: translateX(var(--toc-width));
+        }
+
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--content-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .content h2 {
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+        }
+
+        #markdown-content {
+            line-height: 1.8;
+        }
+
+        /* 目录侧边栏样式 */
+        .toc {
+            position: fixed;
+            top: 50px;
+            left: calc(-1 * var(--toc-width));
+            width: var(--toc-width);
+            height: calc(100vh - 50px);
+            background: var(--content-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            z-index: 999;
+        }
+
+        .toc.open {
+            transform: translateX(var(--toc-width));
+        }
+
+        .toc h1 {
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            margin: 0.5rem 0;
+        }
+
+        .toc-link {
+            color: var(--text-color);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .toc-link:hover {
+            color: var(--hover-color);
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            position: fixed;
+            top: 50px;
+            left: 0;
+            width: 100vw;
+            height: calc(100vh - 50px);
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 998;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .content {
+                padding: 1rem;
+            }
+        }
+
+        /* 排版 */
+        p {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <button class="toolbar-button" id="toc-button" title="目录">
+            <i class="ri-menu-line"></i>
+        </button>
+        <button class="toolbar-button" id="theme-button" title="切换主题">
+            <i class="ri-sun-line"></i>
+        </button>
+        <button class="toolbar-button" id="font-size-button" title="调整字号">
+            <i class="ri-font-size-2"></i>
+        </button>
+    </div>
+
+    <div class="font-size-panel" id="font-size-panel">
+        <div class="font-size-slider-container">
+            <span class="font-size-label small">A</span>
+            <div class="font-size-slider">
+                <input type="range" id="font-size-slider" 
+                       min="12" max="32" step="1" value="16">
+                <div class="tooltip" id="font-size-tooltip">16px</div>
+            </div>
+            <span class="font-size-label large">A</span>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <nav class="toc" id="toc">
+        <h1>目录</h1>
+        <ul class="toc-list" id="toc-list">
+            <!-- 目录项将通过 JavaScript 动态生成 -->
+        </ul>
+    </nav>
+    <div class="container" id="container">
+        <main class="content">
+            <h2 id="content-title">欢迎</h2>
+            <div id="markdown-content">
+                请点击左上角的目录按钮，选择要阅读的章节。
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Markdown 转 HTML 的函数
+        function convertMarkdownToHtml(text) {
+            // 转换分割线
+            text = text.replace(/^\s*----*\s*$/gm, '<p><hr></p>');
+
+            // 转换标题
+            text = text.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+            text = text.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+            text = text.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+            
+            // 转换段落
+            text = text.replace(/\n\n(.*?)\n\n/gs, '</p><p>$1</p>');
+            
+            // 转换粗体
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // 转换斜体
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // 转换代码块
+            text = text.replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>');
+            
+            // 转换行内代码
+            text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+            
+            // 转换列表
+            text = text.replace(/^- (.*?)$/gm, '<li>$1</li>');
+            text = text.replace(/<li>.*?<\/li>\n?(?=<li>|$)/gs, '<ul>$&</ul>');
+
+            
+            
+            return `<p>${text}</p>`;
+        }
+
+        // 加载并显示 Markdown 文件内容
+        async function loadMarkdownFile(file) {
+            try {
+                const response = await fetch(file);
+                const text = await response.text();
+                document.getElementById('content-title').textContent = file.split('/').pop().replace('.md', '');
+                document.getElementById('markdown-content').innerHTML = convertMarkdownToHtml(text);
+                // 关闭目录
+                toggleToc(false);
+            } catch (error) {
+                console.error('加载文件失败:', error);
+                document.getElementById('markdown-content').innerHTML = '<p>加载文件失败</p>';
+            }
+        }
+
+        // 初始化目录
+        async function initializeToc() {
+            const files = [
+                'MES 01.01 The Concept of Action.md',
+                'MES 01 The Fundamentals of Human Action（空）.md'
+            ];
+
+            const tocList = document.getElementById('toc-list');
+            
+            files.forEach(file => {
+                const li = document.createElement('li');
+                li.className = 'toc-item';
+                
+                const a = document.createElement('a');
+                a.className = 'toc-link';
+                a.href = '#';
+                a.textContent = file.replace('.md', '');
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    loadMarkdownFile(file);
+                });
+                
+                li.appendChild(a);
+                tocList.appendChild(li);
+            });
+
+            // 如果存在章节，自动加载第一个章节
+            if (files.length > 0) {
+                loadMarkdownFile(files[0]);
+            }
+        }
+
+        // 切换目录显示状态
+        function toggleToc(show = null) {
+            const toc = document.getElementById('toc');
+            const overlay = document.getElementById('overlay');
+            const container = document.getElementById('container');
+            
+            if (show === null) {
+                show = !toc.classList.contains('open');
+            }
+            
+            if (show) {
+                toc.classList.add('open');
+                overlay.classList.add('visible');
+                container.classList.add('toc-open');
+            } else {
+                toc.classList.remove('open');
+                overlay.classList.remove('visible');
+                container.classList.remove('toc-open');
+            }
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeButton = document.getElementById('theme-button');
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            themeButton.innerHTML = `<i class="ri-${isDark ? 'sun' : 'moon'}-line"></i>`;
+            
+            // 保存主题设置到本地存储
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // 字号调节相关函数
+        function toggleFontSizePanel(event) {
+            const panel = document.getElementById('font-size-panel');
+            const button = document.getElementById('font-size-button');
+            const buttonRect = button.getBoundingClientRect();
+            
+            // 设置面板位置
+            panel.style.top = (buttonRect.bottom + 8) + 'px';
+            panel.style.left = (buttonRect.left - 50 + buttonRect.width / 2) + 'px';
+            
+            panel.classList.toggle('visible');
+            event.stopPropagation();
+        }
+
+        function updateFontSize(size) {
+            document.documentElement.style.fontSize = `${size}px`;
+            const tooltip = document.getElementById('font-size-tooltip');
+            tooltip.textContent = `${size}px`;
+            
+            // 保存字号设置到本地存储
+            localStorage.setItem('fontSize', size);
+        }
+
+        function showTooltip() {
+            const tooltip = document.getElementById('font-size-tooltip');
+            tooltip.classList.add('visible');
+        }
+
+        function hideTooltip() {
+            const tooltip = document.getElementById('font-size-tooltip');
+            tooltip.classList.remove('visible');
+        }
+
+        // 从本地存储加载用户偏好设置
+        function loadUserPreferences() {
+            // 加载主题设置
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                const html = document.documentElement;
+                const themeButton = document.getElementById('theme-button');
+                html.setAttribute('data-theme', savedTheme);
+                themeButton.innerHTML = `<i class="ri-${savedTheme === 'dark' ? 'moon' : 'sun'}-line"></i>`;
+            }
+            
+            // 加载字号设置
+            const savedFontSize = localStorage.getItem('fontSize');
+            if (savedFontSize) {
+                document.documentElement.style.fontSize = `${savedFontSize}px`;
+                const slider = document.getElementById('font-size-slider');
+                slider.value = savedFontSize;
+                const tooltip = document.getElementById('font-size-tooltip');
+                tooltip.textContent = `${savedFontSize}px`;
+            }
+        }
+
+        // 初始化事件监听
+        document.addEventListener('DOMContentLoaded', () => {
+            // 加载用户偏好设置
+            loadUserPreferences();
+            
+            initializeToc();
+            
+            // 目录按钮点击事件
+            document.getElementById('toc-button').addEventListener('click', () => toggleToc());
+            
+            // 主题切换按钮点击事件
+            document.getElementById('theme-button').addEventListener('click', toggleTheme);
+            
+            // 字号调节按钮点击事件
+            document.getElementById('font-size-button').addEventListener('click', toggleFontSizePanel);
+            
+            // 字号滑块事件
+            const slider = document.getElementById('font-size-slider');
+            slider.addEventListener('input', (e) => {
+                updateFontSize(e.target.value);
+                showTooltip();
+            });
+            slider.addEventListener('mouseenter', showTooltip);
+            slider.addEventListener('mouseleave', hideTooltip);
+            
+            // 点击其他区域关闭字号面板
+            document.addEventListener('click', (e) => {
+                const panel = document.getElementById('font-size-panel');
+                const button = document.getElementById('font-size-button');
+                if (!panel.contains(e.target) && !button.contains(e.target)) {
+                    panel.classList.remove('visible');
+                    hideTooltip();
+                }
+            });
+
+            // 遮罩层点击事件（关闭目录）
+            document.getElementById('overlay').addEventListener('click', () => toggleToc(false));
+            
+            // ESC 键关闭目录和字号面板
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    toggleToc(false);
+                    document.getElementById('font-size-panel').classList.remove('visible');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
