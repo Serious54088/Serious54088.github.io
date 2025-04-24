@@ -1185,89 +1185,70 @@
             const tocList = document.getElementById('toc-list');
             tocList.innerHTML = ''; // 清空现有目录
             
-            // 尝试获取当前目录下的所有 HTML 文件
-            let htmlFiles = [];
+            // 获取当前文件路径
+            const currentPath = window.location.pathname;
+            const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
             
             try {
-                // 方法1: 尝试使用 fetch 获取目录内容
-                const currentPath = window.location.pathname;
-                const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+                // 获取当前目录下的所有HTML文件
+                const response = await fetch(currentDir);
+                const text = await response.text();
                 
-                try {
-                    const response = await fetch(currentDir);
-                    const text = await response.text();
-                    
-                    // 解析 HTML 内容
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(text, 'text/html');
-                    
-                    // 获取所有链接
-                    const links = Array.from(doc.querySelectorAll('a'));
-                    
-                    // 过滤出 HTML 文件链接
-                    htmlFiles = links
-                        .map(link => link.getAttribute('href'))
-                        .filter(href => href && href.endsWith('.html'))
-                        .filter(href => href !== 'reader.html'); // 排除 reader.html 本身
-                } catch (error) {
-                    console.error('获取目录内容失败:', error);
-                }
+                // 解析HTML内容
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
                 
-                // 方法2: 如果方法1失败，尝试使用预定义的常见文件名
-                if (htmlFiles.length === 0) {
-                    const commonFiles = [
-                        '无目录.html'
-                    ];
+                // 获取所有链接
+                const links = Array.from(doc.querySelectorAll('a'));
+                
+                // 过滤出HTML文件链接
+                const htmlFiles = links
+                    .map(link => link.getAttribute('href'))
+                    .filter(href => href && href.endsWith('.html'));
+                
+                // 按文件名排序
+                htmlFiles.sort((a, b) => a.localeCompare(b));
+                
+                // 创建目录项
+                for (const file of htmlFiles) {
+                    const li = document.createElement('li');
+                    li.className = 'toc-item';
                     
-                    // 检查这些文件是否存在
-                    for (const file of commonFiles) {
-                        try {
-                            const response = await fetch(file);
-                            if (response.ok) {
-                                htmlFiles.push(file);
-                            }
-                        } catch (error) {
-                            // 文件不存在，忽略错误
-                        }
+                    const a = document.createElement('a');
+                    a.className = 'toc-link';
+                    a.href = file;
+                    
+                    // 获取文件标题
+                    try {
+                        const fileResponse = await fetch(file);
+                        const fileText = await fileResponse.text();
+                        const titleMatch = fileText.match(/<title>(.*?)<\/title>/i);
+                        a.textContent = titleMatch ? titleMatch[1] : file.replace('.html', '');
+                    } catch (error) {
+                        console.error('获取文件标题失败:', error);
+                        a.textContent = file.replace('.html', '');
                     }
-                }
-                
-                // 方法3: 如果前两种方法都失败，使用一个默认列表
-                if (htmlFiles.length === 0) {
-                    htmlFiles = [
-                        '无目录.html'
-                    ];
+                    
+                    li.appendChild(a);
+                    tocList.appendChild(li);
                 }
             } catch (error) {
                 console.error('初始化目录失败:', error);
-                // 使用默认列表
-                htmlFiles = [
-                    '无目录.html'
-                ];
-            }
-            
-            // 创建目录项
-            for (const file of htmlFiles) {
-                const li = document.createElement('li');
-                li.className = 'toc-item';
                 
-                const a = document.createElement('a');
-                a.className = 'toc-link';
-                a.href = file;
-                
-                // 获取文件标题
-                try {
-                    const fileResponse = await fetch(file);
-                    const fileText = await fileResponse.text();
-                    const titleMatch = fileText.match(/<title>(.*?)<\/title>/i);
-                    a.textContent = titleMatch ? titleMatch[1] : file.replace('.html', '');
-                } catch (error) {
-                    console.error('获取文件标题失败:', error);
-                    a.textContent = file.replace('.html', '');
+                // 如果获取目录失败，至少添加当前文件
+                const currentFile = currentPath.substring(currentPath.lastIndexOf('/') + 1);
+                if (currentFile && currentFile.endsWith('.html')) {
+                    const li = document.createElement('li');
+                    li.className = 'toc-item';
+                    
+                    const a = document.createElement('a');
+                    a.className = 'toc-link';
+                    a.href = currentFile;
+                    a.textContent = document.title || currentFile.replace('.html', '');
+                    
+                    li.appendChild(a);
+                    tocList.appendChild(li);
                 }
-                
-                li.appendChild(a);
-                tocList.appendChild(li);
             }
         }
 
