@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>目录 - MES 章节导航</title>
+    <title>01 行动的概念</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
     <style>
         :root {
@@ -206,6 +206,8 @@
 
         #markdown-content {
             line-height: 1.8;
+            font-size: var(--content-font-size, 16px);
+            transition: font-size 0.2s;
         }
 
         /* 目录侧边栏样式 */
@@ -333,84 +335,107 @@
     </div>
 
     <script>
-        // Markdown 转 HTML 的函数
-        function convertMarkdownToHtml(text) {
-            // 转换分割线
-            text = text.replace(/^\s*----*\s*$/gm, '<p><hr></p>');
-
-            // 转换标题
-            text = text.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
-            text = text.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
-            text = text.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
-            
-            // 转换段落
-            text = text.replace(/\n\n(.*?)\n\n/gs, '</p><p>$1</p>');
-            
-            // 转换粗体
-            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
-            // 转换斜体
-            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-            
-            // 转换代码块
-            text = text.replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>');
-            
-            // 转换行内代码
-            text = text.replace(/`(.*?)`/g, '<code>$1</code>');
-            
-            // 转换列表
-            text = text.replace(/^- (.*?)$/gm, '<li>$1</li>');
-            text = text.replace(/<li>.*?<\/li>\n?(?=<li>|$)/gs, '<ul>$&</ul>');
-
-            
-            
-            return `<p>${text}</p>`;
-        }
-
-        // 加载并显示 Markdown 文件内容
-        async function loadMarkdownFile(file) {
-            try {
-                const response = await fetch(file);
-                const text = await response.text();
-                document.getElementById('content-title').textContent = file.split('/').pop().replace('.md', '');
-                document.getElementById('markdown-content').innerHTML = convertMarkdownToHtml(text);
-                // 关闭目录
-                toggleToc(false);
-            } catch (error) {
-                console.error('加载文件失败:', error);
-                document.getElementById('markdown-content').innerHTML = '<p>加载文件失败</p>';
-            }
-        }
-
         // 初始化目录
         async function initializeToc() {
-            const files = [
-                'MES 01.01 The Concept of Action.md',
-                'MES 01 The Fundamentals of Human Action（空）.md'
-            ];
-
             const tocList = document.getElementById('toc-list');
+            tocList.innerHTML = ''; // 清空现有目录
             
-            files.forEach(file => {
+            // 尝试获取当前目录下的所有 HTML 文件
+            let htmlFiles = [];
+            
+            try {
+                // 方法1: 尝试使用 fetch 获取目录内容
+                const currentPath = window.location.pathname;
+                const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+                
+                try {
+                    const response = await fetch(currentDir);
+                    const text = await response.text();
+                    
+                    // 解析 HTML 内容
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(text, 'text/html');
+                    
+                    // 获取所有链接
+                    const links = Array.from(doc.querySelectorAll('a'));
+                    
+                    // 过滤出 HTML 文件链接
+                    htmlFiles = links
+                        .map(link => link.getAttribute('href'))
+                        .filter(href => href && href.endsWith('.html'))
+                        .filter(href => href !== 'reader.html'); // 排除 reader.html 本身
+                } catch (error) {
+                    console.error('获取目录内容失败:', error);
+                }
+                
+                // 方法2: 如果方法1失败，尝试使用预定义的常见文件名
+                if (htmlFiles.length === 0) {
+                    const commonFiles = [
+                        'index.html',
+                        'chapter1.html',
+                        'chapter2.html',
+                        'chapter3.html',
+                        'page1.html',
+                        'page2.html',
+                        'section1.html',
+                        'section2.html'
+                    ];
+                    
+                    // 检查这些文件是否存在
+                    for (const file of commonFiles) {
+                        try {
+                            const response = await fetch(file);
+                            if (response.ok) {
+                                htmlFiles.push(file);
+                            }
+                        } catch (error) {
+                            // 文件不存在，忽略错误
+                        }
+                    }
+                }
+                
+                // 方法3: 如果前两种方法都失败，使用一个默认列表
+                if (htmlFiles.length === 0) {
+                    htmlFiles = [
+                        'index.html',
+                        'chapter1.html',
+                        'chapter2.html',
+                        'chapter3.html'
+                    ];
+                }
+            } catch (error) {
+                console.error('初始化目录失败:', error);
+                // 使用默认列表
+                htmlFiles = [
+                    'index.html',
+                    'chapter1.html',
+                    'chapter2.html',
+                    'chapter3.html'
+                ];
+            }
+            
+            // 创建目录项
+            for (const file of htmlFiles) {
                 const li = document.createElement('li');
                 li.className = 'toc-item';
                 
                 const a = document.createElement('a');
                 a.className = 'toc-link';
-                a.href = '#';
-                a.textContent = file.replace('.md', '');
-                a.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    loadMarkdownFile(file);
-                });
+                a.href = file;
+                
+                // 获取文件标题
+                try {
+                    const fileResponse = await fetch(file);
+                    const fileText = await fileResponse.text();
+                    const titleMatch = fileText.match(/<title>(.*?)<\/title>/i);
+                    a.textContent = titleMatch ? titleMatch[1] : file.replace('.html', '');
+                } catch (error) {
+                    console.error('获取文件标题失败:', error);
+                    a.textContent = file.replace('.html', '');
+                }
                 
                 li.appendChild(a);
                 tocList.appendChild(li);
-            });
-
-            // 如果存在章节，自动加载第一个章节
-            if (files.length > 0) {
-                loadMarkdownFile(files[0]);
             }
         }
 
@@ -464,7 +489,10 @@
         }
 
         function updateFontSize(size) {
-            document.documentElement.style.fontSize = `${size}px`;
+            // 更新 CSS 变量
+            document.documentElement.style.setProperty('--content-font-size', `${size}px`);
+            
+            // 更新工具提示
             const tooltip = document.getElementById('font-size-tooltip');
             tooltip.textContent = `${size}px`;
             
@@ -496,7 +524,10 @@
             // 加载字号设置
             const savedFontSize = localStorage.getItem('fontSize');
             if (savedFontSize) {
-                document.documentElement.style.fontSize = `${savedFontSize}px`;
+                // 更新 CSS 变量
+                document.documentElement.style.setProperty('--content-font-size', `${savedFontSize}px`);
+                
+                // 更新滑块和提示
                 const slider = document.getElementById('font-size-slider');
                 slider.value = savedFontSize;
                 const tooltip = document.getElementById('font-size-tooltip');

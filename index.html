@@ -97,19 +97,25 @@
         /* Banner区域 */
         .banner {
             height: 400px;
-            background-image: url('https://cdn2.zzzmh.cn/wallpaper/origin/47482bcb3a294e868546d6c73f1e7ca8.jpg?response-content-disposition=attachment&auth_key=1743782400-b69a395fe824f1c71fa7cac279c7e8c964f1aeb8-0-bf0ce2bc4dc2d4df124dac43327dfe09');
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .banner-container {
+            display: flex;
+            height: 100%;
+            transition: transform 0.5s ease;
+        }
+        
+        .banner-slide {
+            min-width: 100%;
+            height: 100%;
             background-size: cover;
             background-position: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: white;
             position: relative;
         }
         
-        .banner::before {
+        .banner-slide::before {
             content: "";
             position: absolute;
             top: 0;
@@ -120,10 +126,67 @@
         }
         
         .banner-content {
-            position: relative;
+            position: absolute;
             z-index: 1;
             max-width: 800px;
             padding: 0 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+        }
+        
+        .banner-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 2;
+        }
+        
+        .banner-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .banner-dot.active {
+            background: white;
+        }
+        
+        .banner-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            z-index: 2;
+        }
+        
+        .banner-arrow:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+        
+        .banner-prev {
+            left: 20px;
+        }
+        
+        .banner-next {
+            right: 20px;
         }
         
         .banner h2 {
@@ -466,10 +529,39 @@
 
     <!-- Banner区域 -->
     <div class="banner">
-        <div class="banner-content">
-            <h2>藏古今智慧，启未来之门</h2>
-            <p>在这里，您可以探索珍贵的智慧书籍和文献，汲取先贤智慧，开启知识之旅</p>
-            <a href="./mes/index.html" class="btn">探索书籍</a>
+        <div class="banner-container" id="banner-container">
+            <div class="banner-slide" style="background-image: url('https://images.unsplash.com/photo-1572296231939-e160c3814236?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')">
+                <div class="banner-content">
+                    <h2>《法律》(La Loi)</h2>
+                    <p>巴斯夏传世檄文，以清晰逻辑与炽热激情，阐释法律、正义与自由的真谛。</p>
+                    <a href="./bastiat/la_loi.html" class="btn">开始阅读</a>
+                </div>
+            </div>
+            <div class="banner-slide" style="background-image: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')">
+                <div class="banner-content">
+                    <h2>经典著作，智慧传承</h2>
+                    <p>探索中国传统文化精髓，感受千年智慧的力量</p>
+                    <a href="#" class="btn">开始浏览</a>
+                </div>
+            </div>
+            <div class="banner-slide" style="background-image: url('https://images.unsplash.com/photo-1536599018102-9f803c140fc1?q=80')">
+                <div class="banner-content">
+                    <h2>知识无界，智慧无限</h2>
+                    <p>跨越时空的智慧对话，开启您的阅读之旅</p>
+                    <a href="#" class="btn">开始探索</a>
+                </div>
+            </div>
+        </div>
+        <div class="banner-controls" id="banner-controls">
+            <div class="banner-dot active"></div>
+            <div class="banner-dot"></div>
+            <div class="banner-dot"></div>
+        </div>
+        <div class="banner-arrow banner-prev" id="banner-prev">
+            <i>❮</i>
+        </div>
+        <div class="banner-arrow banner-next" id="banner-next">
+            <i>❯</i>
         </div>
     </div>
 
@@ -628,5 +720,73 @@
             © 2023 藏奥阁 版权所有
         </div>
     </footer>
+
+    <script>
+        // 轮播图功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const bannerContainer = document.getElementById('banner-container');
+            const slides = document.querySelectorAll('.banner-slide');
+            const dots = document.querySelectorAll('.banner-dot');
+            const prevBtn = document.getElementById('banner-prev');
+            const nextBtn = document.getElementById('banner-next');
+            let currentSlide = 0;
+            let slideInterval;
+
+            function updateSlide(index) {
+                currentSlide = index;
+                bannerContainer.style.transform = `translateX(-${index * 100}%)`;
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                updateSlide(currentSlide);
+            }
+
+            function prevSlide() {
+                currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                updateSlide(currentSlide);
+            }
+
+            // 自动轮播
+            function startSlideShow() {
+                slideInterval = setInterval(nextSlide, 5000);
+            }
+
+            function stopSlideShow() {
+                clearInterval(slideInterval);
+            }
+
+            // 事件监听
+            prevBtn.addEventListener('click', () => {
+                prevSlide();
+                stopSlideShow();
+                startSlideShow();
+            });
+
+            nextBtn.addEventListener('click', () => {
+                nextSlide();
+                stopSlideShow();
+                startSlideShow();
+            });
+
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    updateSlide(index);
+                    stopSlideShow();
+                    startSlideShow();
+                });
+            });
+
+            // 鼠标悬停时暂停自动轮播
+            bannerContainer.addEventListener('mouseenter', stopSlideShow);
+            bannerContainer.addEventListener('mouseleave', startSlideShow);
+
+            // 开始自动轮播
+            startSlideShow();
+        });
+    </script>
 </body>
 </html>

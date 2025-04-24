@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本处理测试工具</title>
+    <style>
+        :root[data-theme="light"] {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #cccccc;
+            --textarea-bg: #ffffff;
+            --result-bg: #f9f9f9;
+            --header-color: #333333;
+        }
+
+        :root[data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --border-color: #444444;
+            --textarea-bg: #2d2d2d;
+            --result-bg: #2d2d2d;
+            --header-color: #ffffff;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .input-section, .output-section {
+            flex: 1;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--textarea-bg);
+            color: var(--text-color);
+            resize: vertical;
+        }
+
+        .result {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            min-height: 200px;
+            background-color: var(--result-bg);
+        }
+
+        h2, h3 {
+            color: var(--header-color);
+        }
+
+        .theme-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--textarea-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .theme-switch:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-switch" id="themeSwitch">切换主题</button>
+    <h2>文本处理测试工具</h2>
+    <div class="container">
+        <div class="input-section">
+            <h3>输入文本：</h3>
+            <textarea id="inputText" placeholder="请在此输入要处理的文本...">
+## 标题1
+
+### 标题2
+
+### 标题3
+
+我是**加粗**，我是*斜体*，我是~~删除线~~，我是`代码`
+            </textarea>
+        </div>
+        <div class="output-section">
+            <h3>处理结果：</h3>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { MdUtils } from './mdUtils.js';
+        // 获取DOM元素
+        const inputText = document.getElementById('inputText');
+        const result = document.getElementById('result');
+        const themeSwitch = document.getElementById('themeSwitch');
+        const html = document.documentElement;
+
+        result.innerHTML = processText(inputText.value);
+
+        // 主题切换功能
+        themeSwitch.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // 初始化主题
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', savedTheme);
+
+        // 文本处理函数
+        function processText(text) {
+            const htmlContent = MdUtils.md2html(text);
+            return htmlContent;
+        }
+
+        // 监听输入变化并更新结果
+        inputText.addEventListener('input', function() {
+            const text = this.value;
+            const stats = processText(text);
+            
+            // 显示结果
+            result.innerHTML = stats;
+        });
+    </script>
+</body>
+</html>
