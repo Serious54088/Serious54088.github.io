@@ -1216,14 +1216,7 @@
                 // 方法2: 如果方法1失败，尝试使用预定义的常见文件名
                 if (htmlFiles.length === 0) {
                     const commonFiles = [
-                        'index.html',
-                        'chapter1.html',
-                        'chapter2.html',
-                        'chapter3.html',
-                        'page1.html',
-                        'page2.html',
-                        'section1.html',
-                        'section2.html'
+                        '无目录.html'
                     ];
                     
                     // 检查这些文件是否存在
@@ -1242,20 +1235,14 @@
                 // 方法3: 如果前两种方法都失败，使用一个默认列表
                 if (htmlFiles.length === 0) {
                     htmlFiles = [
-                        'index.html',
-                        'chapter1.html',
-                        'chapter2.html',
-                        'chapter3.html'
+                        '无目录.html'
                     ];
                 }
             } catch (error) {
                 console.error('初始化目录失败:', error);
                 // 使用默认列表
                 htmlFiles = [
-                    'index.html',
-                    'chapter1.html',
-                    'chapter2.html',
-                    'chapter3.html'
+                    '无目录.html'
                 ];
             }
             
