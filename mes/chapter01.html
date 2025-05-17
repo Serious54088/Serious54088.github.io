@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh" data-theme="light">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>01 行动的概念</title>
+    <title>测试章节</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
-    <link rel="stylesheet" href="../static/css/page.css">
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -91,7 +89,7 @@
             border: 1px solid var(--border-color);
             border-radius: 4px;
             padding: 8px 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             display: none;
             z-index: 1001;
         }
@@ -185,8 +183,7 @@
         .container {
             margin-top: 50px;
             padding: 2rem;
-            transition: transform 0.3s ease, font-size 0.2s;
-            font-size: var(--content-font-size, 16px);
+            transition: transform 0.3s ease;
         }
 
         .container.toc-open {
@@ -199,7 +196,7 @@
             background: var(--content-bg);
             padding: 2rem;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .content h2 {
@@ -209,6 +206,8 @@
 
         #markdown-content {
             line-height: 1.8;
+            font-size: var(--content-font-size, 16px);
+            transition: font-size 0.2s;
         }
 
         /* 目录侧边栏样式 */
@@ -258,14 +257,6 @@
             background-color: rgba(52, 152, 219, 0.1);
         }
 
-        .toc-link.active {
-            color: var(--hover-color);
-            background-color: rgba(52, 152, 219, 0.15);
-            font-weight: 500;
-            border-left: 3px solid var(--hover-color);
-            padding-left: 1rem;
-        }
-
         /* 遮罩层 */
         .overlay {
             position: fixed;
@@ -290,7 +281,7 @@
             .container {
                 padding: 1rem;
             }
-
+            
             .content {
                 padding: 1rem;
             }
@@ -302,17 +293,10 @@
         }
     </style>
 </head>
-
 <body>
     <div class="toolbar">
         <button class="toolbar-button" id="toc-button" title="目录">
             <i class="ri-menu-line"></i>
-        </button>
-        <button class="toolbar-button" id="prev-button" title="上一章">
-            <i class="ri-arrow-left-s-line"></i>
-        </button>
-        <button class="toolbar-button" id="next-button" title="下一章">
-            <i class="ri-arrow-right-s-line"></i>
         </button>
         <button class="toolbar-button" id="theme-button" title="切换主题">
             <i class="ri-sun-line"></i>
@@ -320,16 +304,14 @@
         <button class="toolbar-button" id="font-size-button" title="调整字号">
             <i class="ri-font-size-2"></i>
         </button>
-        <button class="toolbar-button" id="home-button" title="返回主页">
-            <i class="ri-home-line"></i>
-        </button>
     </div>
 
     <div class="font-size-panel" id="font-size-panel">
         <div class="font-size-slider-container">
             <span class="font-size-label small">A</span>
             <div class="font-size-slider">
-                <input type="range" id="font-size-slider" min="12" max="32" step="1" value="16">
+                <input type="range" id="font-size-slider" 
+                       min="12" max="32" step="1" value="16">
                 <div class="tooltip" id="font-size-tooltip">16px</div>
             </div>
             <span class="font-size-label large">A</span>
@@ -345,32 +327,83 @@
     </nav>
     <div class="container" id="container">
         <main class="content">
-            <h2 id="content-title">欢迎</h2>
+            <h2 id="content-title">测试</h2>
             <div id="markdown-content">
                 请点击左上角的目录按钮，选择要阅读的章节。
             </div>
-            <p>为此，造物主赋予了我们一系列非凡的禀赋，并将我们置身于纷繁万象的寰宇之中。正是通过将我们的禀赋运用于万物之上，才实现了<span class="note-hover"><strong>同化</strong><span class="note-content">同化（Assimilation）：指人类通过劳动等方式，将外部资源吸收、转化，使其服务于自身生命需求的过程。——译者注</span></span>与<span class="note-hover"><strong>占有</strong><span class="note-content">占有（Appropriation）：指通过施加劳动将自然资源（无主物）转化为私有财产的过程。——译者注</span></span>的现象，生命本身也藉此得以遵循其自然轨迹运行。</p>
-            <p>存在、禀赋、同化——换言之，<span class="note-hover">人格<span class="note-content">相比于 Personne（人身/个人），Personnalité (人格/个性）更侧重于内在意义，指的是具有自由意志和理性能力的“存在”。——译者注</span></span>、自由、财产——此即人之本质。</p>
         </main>
     </div>
 
     <script>
-        // 悬停显示注释
-        
-        // 显示模态窗口
-        function showModal(modalId) {
-            document.getElementById(modalId).style.display = "block";
-        }
-
-        // 关闭模态窗口
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = "none";
-        }
-
-        // 点击窗口外部时关闭
-        window.onclick = function (event) {
-            if (event.target.className === "modal") {
-                event.target.style.display = "none";
+        // 初始化目录
+        async function initializeToc() {
+            const tocList = document.getElementById('toc-list');
+            tocList.innerHTML = ''; // 清空现有目录
+            
+            // 获取当前文件路径
+            const currentPath = window.location.pathname;
+            const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+            
+            try {
+                // 获取当前目录下的所有HTML文件
+                const response = await fetch(currentDir);
+                const text = await response.text();
+                
+                // 解析HTML内容
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                
+                // 获取所有链接
+                const links = Array.from(doc.querySelectorAll('a'));
+                
+                // 过滤出HTML文件链接
+                const htmlFiles = links
+                    .map(link => link.getAttribute('href'))
+                    .filter(href => href && href.endsWith('.html'));
+                
+                // 按文件名排序
+                htmlFiles.sort((a, b) => a.localeCompare(b));
+                
+                // 创建目录项
+                for (const file of htmlFiles) {
+                    const li = document.createElement('li');
+                    li.className = 'toc-item';
+                    
+                    const a = document.createElement('a');
+                    a.className = 'toc-link';
+                    a.href = file;
+                    
+                    // 获取文件标题
+                    try {
+                        const fileResponse = await fetch(file);
+                        const fileText = await fileResponse.text();
+                        const titleMatch = fileText.match(/<title>(.*?)<\/title>/i);
+                        a.textContent = titleMatch ? titleMatch[1] : file.replace('.html', '');
+                    } catch (error) {
+                        console.error('获取文件标题失败:', error);
+                        a.textContent = file.replace('.html', '');
+                    }
+                    
+                    li.appendChild(a);
+                    tocList.appendChild(li);
+                }
+            } catch (error) {
+                console.error('初始化目录失败:', error);
+                
+                // 如果获取目录失败，至少添加当前文件
+                const currentFile = currentPath.substring(currentPath.lastIndexOf('/') + 1);
+                if (currentFile && currentFile.endsWith('.html')) {
+                    const li = document.createElement('li');
+                    li.className = 'toc-item';
+                    
+                    const a = document.createElement('a');
+                    a.className = 'toc-link';
+                    a.href = currentFile;
+                    a.textContent = document.title || currentFile.replace('.html', '');
+                    
+                    li.appendChild(a);
+                    tocList.appendChild(li);
+                }
             }
         }
 
@@ -379,116 +412,19 @@
             const toc = document.getElementById('toc');
             const overlay = document.getElementById('overlay');
             const container = document.getElementById('container');
-
+            
             if (show === null) {
                 show = !toc.classList.contains('open');
             }
-
+            
             if (show) {
                 toc.classList.add('open');
                 overlay.classList.add('visible');
                 container.classList.add('toc-open');
-                
-                // 当目录打开时，滚动到当前章节
-                const activeLink = document.querySelector('.toc-link.active');
-                if (activeLink) {
-                    setTimeout(() => {
-                        activeLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 100);
-                }
             } else {
                 toc.classList.remove('open');
                 overlay.classList.remove('visible');
                 container.classList.remove('toc-open');
-            }
-        }
-
-        // 初始化目录
-        async function initializeToc() {
-            const tocList = document.getElementById('toc-list');
-            tocList.innerHTML = ''; // 清空现有目录
-
-            // 获取当前文件路径和标题
-            const currentPath = window.location.pathname;
-            const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
-            const currentFile = currentPath.substring(currentPath.lastIndexOf('/') + 1);
-            const currentTitle = document.title; // 获取当前页面的标题
-
-            try {
-                // 获取当前目录下的所有HTML文件
-                const response = await fetch(currentDir);
-                const text = await response.text();
-
-                // 解析HTML内容
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-
-                // 获取所有链接
-                const links = Array.from(doc.querySelectorAll('a'));
-
-                // 过滤出HTML文件链接
-                const htmlFiles = links
-                    .map(link => link.getAttribute('href'))
-                    .filter(href => href && href.endsWith('.html'));
-
-                // 按文件名排序
-                htmlFiles.sort((a, b) => a.localeCompare(b));
-
-                // 创建目录项
-                for (const file of htmlFiles) {
-                    const li = document.createElement('li');
-                    li.className = 'toc-item';
-
-                    const a = document.createElement('a');
-                    a.className = 'toc-link';
-                    a.href = file;
-
-                    // 获取文件标题
-                    try {
-                        const fileResponse = await fetch(file);
-                        const fileText = await fileResponse.text();
-                        const titleMatch = fileText.match(/<title>(.*?)<\/title>/i);
-                        const fileTitle = titleMatch ? titleMatch[1] : file.replace('.html', '');
-                        a.textContent = fileTitle;
-
-                        // 如果文件标题与当前页面标题匹配，添加active类
-                        if (fileTitle === currentTitle) {
-                            a.classList.add('active');
-                        }
-                    } catch (error) {
-                        console.error('获取文件标题失败:', error);
-                        a.textContent = file.replace('.html', '');
-                    }
-
-                    li.appendChild(a);
-                    tocList.appendChild(li);
-                }
-
-                // 如果目录是打开状态，滚动到当前章节
-                if (document.getElementById('toc').classList.contains('open')) {
-                    const activeLink = document.querySelector('.toc-link.active');
-                    if (activeLink) {
-                        setTimeout(() => {
-                            activeLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }, 100);
-                    }
-                }
-            } catch (error) {
-                console.error('初始化目录失败:', error);
-
-                // 如果获取目录失败，至少添加当前文件
-                if (currentFile && currentFile.endsWith('.html')) {
-                    const li = document.createElement('li');
-                    li.className = 'toc-item';
-
-                    const a = document.createElement('a');
-                    a.className = 'toc-link active';
-                    a.href = currentFile;
-                    a.textContent = currentTitle || currentFile.replace('.html', '');
-
-                    li.appendChild(a);
-                    tocList.appendChild(li);
-                }
             }
         }
 
@@ -498,10 +434,10 @@
             const themeButton = document.getElementById('theme-button');
             const isDark = html.getAttribute('data-theme') === 'dark';
             const newTheme = isDark ? 'light' : 'dark';
-
+            
             html.setAttribute('data-theme', newTheme);
             themeButton.innerHTML = `<i class="ri-${isDark ? 'sun' : 'moon'}-line"></i>`;
-
+            
             // 保存主题设置到本地存储
             localStorage.setItem('theme', newTheme);
         }
@@ -511,11 +447,11 @@
             const panel = document.getElementById('font-size-panel');
             const button = document.getElementById('font-size-button');
             const buttonRect = button.getBoundingClientRect();
-
+            
             // 设置面板位置
             panel.style.top = (buttonRect.bottom + 8) + 'px';
             panel.style.left = (buttonRect.left - 50 + buttonRect.width / 2) + 'px';
-
+            
             panel.classList.toggle('visible');
             event.stopPropagation();
         }
@@ -523,11 +459,11 @@
         function updateFontSize(size) {
             // 更新 CSS 变量
             document.documentElement.style.setProperty('--content-font-size', `${size}px`);
-
+            
             // 更新工具提示
             const tooltip = document.getElementById('font-size-tooltip');
             tooltip.textContent = `${size}px`;
-
+            
             // 保存字号设置到本地存储
             localStorage.setItem('fontSize', size);
         }
@@ -552,13 +488,13 @@
                 html.setAttribute('data-theme', savedTheme);
                 themeButton.innerHTML = `<i class="ri-${savedTheme === 'dark' ? 'moon' : 'sun'}-line"></i>`;
             }
-
+            
             // 加载字号设置
             const savedFontSize = localStorage.getItem('fontSize');
             if (savedFontSize) {
                 // 更新 CSS 变量
                 document.documentElement.style.setProperty('--content-font-size', `${savedFontSize}px`);
-
+                
                 // 更新滑块和提示
                 const slider = document.getElementById('font-size-slider');
                 slider.value = savedFontSize;
@@ -571,27 +507,18 @@
         document.addEventListener('DOMContentLoaded', () => {
             // 加载用户偏好设置
             loadUserPreferences();
-
+            
             initializeToc();
-
-            // 主页按钮点击事件
-            document.getElementById('home-button').addEventListener('click', () => {
-                window.location.href = '/index.html';
-            });
-
-            // 前进后退按钮点击事件
-            document.getElementById('prev-button').addEventListener('click', navigateToPrevChapter);
-            document.getElementById('next-button').addEventListener('click', navigateToNextChapter);
-
+            
             // 目录按钮点击事件
             document.getElementById('toc-button').addEventListener('click', () => toggleToc());
-
+            
             // 主题切换按钮点击事件
             document.getElementById('theme-button').addEventListener('click', toggleTheme);
-
+            
             // 字号调节按钮点击事件
             document.getElementById('font-size-button').addEventListener('click', toggleFontSizePanel);
-
+            
             // 字号滑块事件
             const slider = document.getElementById('font-size-slider');
             slider.addEventListener('input', (e) => {
@@ -600,7 +527,7 @@
             });
             slider.addEventListener('mouseenter', showTooltip);
             slider.addEventListener('mouseleave', hideTooltip);
-
+            
             // 点击其他区域关闭字号面板
             document.addEventListener('click', (e) => {
                 const panel = document.getElementById('font-size-panel');
@@ -613,7 +540,7 @@
 
             // 遮罩层点击事件（关闭目录）
             document.getElementById('overlay').addEventListener('click', () => toggleToc(false));
-
+            
             // ESC 键关闭目录和字号面板
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
@@ -622,59 +549,6 @@
                 }
             });
         });
-
-        // 导航到上一章
-        async function navigateToPrevChapter() {
-            const currentPath = window.location.pathname;
-            const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
-            const currentFile = currentPath.substring(currentPath.lastIndexOf('/') + 1);
-
-            try {
-                const response = await fetch(currentDir);
-                const text = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const links = Array.from(doc.querySelectorAll('a'));
-                const htmlFiles = links
-                    .map(link => link.getAttribute('href'))
-                    .filter(href => href && href.endsWith('.html'))
-                    .sort((a, b) => a.localeCompare(b));
-
-                const currentIndex = htmlFiles.indexOf(currentFile);
-                if (currentIndex > 0) {
-                    window.location.href = htmlFiles[currentIndex - 1];
-                }
-            } catch (error) {
-                console.error('导航到上一章失败:', error);
-            }
-        }
-
-        // 导航到下一章
-        async function navigateToNextChapter() {
-            const currentPath = window.location.pathname;
-            const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
-            const currentFile = currentPath.substring(currentPath.lastIndexOf('/') + 1);
-
-            try {
-                const response = await fetch(currentDir);
-                const text = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const links = Array.from(doc.querySelectorAll('a'));
-                const htmlFiles = links
-                    .map(link => link.getAttribute('href'))
-                    .filter(href => href && href.endsWith('.html'))
-                    .sort((a, b) => a.localeCompare(b));
-
-                const currentIndex = htmlFiles.indexOf(currentFile);
-                if (currentIndex < htmlFiles.length - 1) {
-                    window.location.href = htmlFiles[currentIndex + 1];
-                }
-            } catch (error) {
-                console.error('导航到下一章失败:', error);
-            }
-        }
     </script>
 </body>
-
-</html>
+</html> 

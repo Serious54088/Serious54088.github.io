@@ -1,3 +1,94 @@
-h1 {
+@font-face {
+    font-family: 'SourceHanSerifSC';
+    src: url('../fonts/SourceHanSerifSC-Medium.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+h1, h2{
     text-align: center;
 }
+
+#author {
+  margin-bottom: 2em;
+}
+
+p {
+  line-height: 1.8em;
+  font-family: 'SourceHanSerifSC', sans-serif;
+  /* text-indent: 2em; */
+}
+
+/* blockquote */
+
+blockquote {
+  position: relative;
+  padding: 25px 25px 10px 40px;
+  margin: 20px 0;
+  /* border-left: 4px solid #ff0000; 红色左边框，可以根据需要调整颜色 */
+  background-color: #7166bc1c; /* 深色背景，与您的暗色主题匹配 */
+  /* color: #cfd1f1; 文字颜色 */
+  border-radius: 5px;
+}
+
+blockquote::before {
+  content: "“"; /* 双引号字符 */
+  font-size: 60px; /* 引号大小 */
+  font-family: Arial, sans-serif;
+  color: #8d8abe; /* 引号颜色，与边框匹配 */
+  position: absolute;
+  left: 10px;
+  top: 5px;
+  line-height: 1;
+}
+
+blockquote blockquote {
+  padding-right: 0em;
+}
+
+
+/* 方式1: 悬停显示注释 */
+.note-hover {
+    position: relative;
+    text-decoration: none;
+    border-bottom: 1px dashed #666;
+    color: #0066cc;
+    cursor: help;
+  }
+  
+  .note-hover .note-content {
+    visibility: hidden;
+    width: 250px;
+    background-color: #f8f8f8;
+    color: #333;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -125px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-size: 0.9em;
+    line-height: 1.4;
+  }
+  
+  .note-hover .note-content::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #f8f8f8 transparent transparent transparent;
+  }
+  
+  .note-hover:hover .note-content {
+    visibility: visible;
+    opacity: 1;
+  }
